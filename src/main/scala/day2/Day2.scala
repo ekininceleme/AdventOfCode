@@ -2,7 +2,7 @@ package day2
 
 import cats.effect.IO
 import fs2.Pipe
-import fs2.io.file.{Files, Path}
+import utils.Utils
 
 object Day2 {
 
@@ -45,7 +45,7 @@ object Day2 {
   case class Bag(green: Int, red: Int, blue: Int)
 
   def part1(path: String, bag: Bag) =
-    (readFile(path) through getGames)
+    (Utils.readFile(path) through getGames)
       .evalTap(IO.println(_))
       .filter(_.isPossible(bag))
       .evalTap(b => IO.println(b.isPossible(bag)))
@@ -54,7 +54,7 @@ object Day2 {
       .fold(0)(_ + _)
 
   def part2(path: String) =
-    (readFile(path) through getGames)
+    (Utils.readFile(path) through getGames)
       .map(_.minimumRound)
       .map(_.power)
       .compile
@@ -63,6 +63,4 @@ object Day2 {
   private def getGames: Pipe[IO, String, Game] = _.map(gameParser)
     .flatMap(fs2.Stream.fromOption(_))
 
-  private def readFile(filePath: String): fs2.Stream[IO, String] =
-    Files[IO].readUtf8Lines(Path(filePath))
 }
